@@ -8,6 +8,8 @@ using tigl::Vertex;
 #pragma comment(lib, "glew32s.lib")
 #pragma comment(lib, "opengl32.lib")
 
+#include "DebugCamera.h"
+
 GLFWwindow* window;
 
 void init();
@@ -44,6 +46,7 @@ int main(void)
     return 0;
 }
 
+Camera* camera;
 
 void init()
 {
@@ -53,16 +56,36 @@ void init()
             glfwSetWindowShouldClose(window, true);
     });
 
+    camera = new DebugCamera(window);
 }
 
 
 void update()
 {
-
+    camera->update(window);
 }
 
 void draw()
 {
     glClearColor(0.3f, 0.4f, 0.6f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    int viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    glm::mat4 projection = glm::perspective(glm::radians(75.0f), viewport[2] / (float)viewport[3], 0.01f, 100.0f);
+
+    tigl::shader->setProjectionMatrix(projection);
+    tigl::shader->setViewMatrix(camera->getViewMatrix());
+    tigl::shader->setModelMatrix(glm::mat4(1.0f));
+
+    tigl::shader->enableColor(true);
+
+    glEnable(GL_DEPTH_TEST);
+
+    tigl::begin(GL_QUADS);
+    tigl::addVertex(Vertex::P(glm::vec3(-1, -1, 1)));
+    tigl::addVertex(Vertex::P(glm::vec3(-1, -1, -1)));
+    tigl::addVertex(Vertex::P(glm::vec3(1, -1, -1)));
+    tigl::addVertex(Vertex::P(glm::vec3(1, -1, 1)));
+    tigl::end();
 }
