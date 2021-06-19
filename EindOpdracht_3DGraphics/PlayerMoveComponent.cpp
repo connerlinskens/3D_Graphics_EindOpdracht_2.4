@@ -29,8 +29,6 @@ void PlayerMoveComponent::move(float angle, float fac)
 void PlayerMoveComponent::update(float deltaTime)
 {
 	if (onGround) {
-		yVelocity = 0;
-
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
 			onGround = false;
 			yVelocity = jumpVelocity;

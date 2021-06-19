@@ -84,6 +84,7 @@ void init()
         [](ColliderComponent* collider) {
         if (collider->tag == "floor") {
             player->getComponent<PlayerMoveComponent>()->onGround = true;
+            player->getComponent<PlayerMoveComponent>()->yVelocity = 0;
         }
         std::cout << "Colliding with " << collider->tag << std::endl;
     };
@@ -115,7 +116,7 @@ void update()
 
     //camera->update(window);
     collisionManager->isColliding(player->getComponent<ColliderComponent>());
-    std::cout << player->position.y << std::endl;
+
     for (auto& go : gameObjects)
         go->update(deltaTime);
 }

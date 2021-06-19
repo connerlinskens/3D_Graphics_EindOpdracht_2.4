@@ -9,7 +9,6 @@ private:
 
 	float gravity;
 	float jumpVelocity;
-	float yVelocity;
 
 	void move(float angle, float fac);
 
@@ -17,6 +16,7 @@ public:
 	PlayerMoveComponent(GLFWwindow* wn);
 	~PlayerMoveComponent();
 
+	float yVelocity;
 	bool onGround;
 
 	virtual void update(float deltaTime) override;
