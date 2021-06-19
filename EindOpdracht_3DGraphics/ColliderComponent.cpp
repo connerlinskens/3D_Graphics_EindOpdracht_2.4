@@ -1,9 +1,11 @@
 #include "ColliderComponent.h"
+#include "CollisionManager.h"
 #include "tigl.h"
 using tigl::Vertex;
 
-ColliderComponent::ColliderComponent(glm::vec3 colBounds, std::string colTag)
+ColliderComponent::ColliderComponent(CollisionManager* colManager, glm::vec3 colBounds, std::string colTag)
 {
+	colManager->addCollider(this);
 	bounds = colBounds;
 	tag = colTag;
 }

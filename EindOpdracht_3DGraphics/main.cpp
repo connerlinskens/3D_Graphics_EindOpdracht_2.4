@@ -8,6 +8,8 @@
 #include "CollisionManager.h"
 #include "DebugCamera.h"
 
+#include <iostream>
+
 using tigl::Vertex;
 
 #pragma comment(lib, "glfw3.lib")
@@ -73,10 +75,12 @@ void init()
     collisionManager = new CollisionManager();
 
     player = new GameObject();
-    player->position = glm::vec3(0, 0, -5);
+    player->position = glm::vec3(0, 0, 5);
+    player->scale = glm::vec3(0.5f);
     player->addComponent(new CameraComponent(window));
     player->addComponent(new PlayerMoveComponent(window));
-    player->addComponent(new ColliderComponent(glm::vec3(1, 2, 1), "player"));
+    player->addComponent(new ColliderComponent(collisionManager, glm::vec3(1, 2, 1), "player"));
+    player->getComponent<ColliderComponent>()->onCollision = [](ColliderComponent* collider) { std::cout << "Colliding with " << collider->tag << std::endl; };
     gameObjects.push_back(player);
 
     for (int i = 0; i < 6; i++)
@@ -84,7 +88,7 @@ void init()
         GameObject* go = new GameObject();
         go->position = glm::vec3(-2.5f + i, 0, 0);
         go->addComponent(new CubeComponent(glm::vec3(1, 2, 1) , glm::vec4(0.2f + (0.2f * i), 0, 0, 1)));
-        go->addComponent(new ColliderComponent(glm::vec3(1, 2, 1)));
+        go->addComponent(new ColliderComponent(collisionManager, glm::vec3(1, 2, 1)));
         go->scale = glm::vec3(0.15f);
         gameObjects.push_back(go);
     }
@@ -98,6 +102,7 @@ void update()
     lastFrameTime = currentFrameTime;
 
     //camera->update(window);
+    collisionManager->isColliding(player->getComponent<ColliderComponent>());
 
     for (auto& go : gameObjects)
         go->update(deltaTime);
