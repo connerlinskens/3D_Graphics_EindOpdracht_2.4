@@ -7,13 +7,18 @@ class PlayerMoveComponent : public Component
 private:
 	GLFWwindow* window;
 
+	float gravity;
+	float jumpVelocity;
+	float yVelocity;
+
 	void move(float angle, float fac);
 
 public:
 	PlayerMoveComponent(GLFWwindow* wn);
 	~PlayerMoveComponent();
 
-	virtual void update(float deltaTime) override;
+	bool onGround;
 
+	virtual void update(float deltaTime) override;
 };
 

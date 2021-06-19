@@ -80,7 +80,13 @@ void init()
     player->addComponent(new CameraComponent(window));
     player->addComponent(new PlayerMoveComponent(window));
     player->addComponent(new ColliderComponent(collisionManager, glm::vec3(1, 2, 1), "player"));
-    player->getComponent<ColliderComponent>()->onCollision = [](ColliderComponent* collider) { std::cout << "Colliding with " << collider->tag << std::endl; };
+    player->getComponent<ColliderComponent>()->onCollision =
+        [](ColliderComponent* collider) {
+        if (collider->tag == "floor") {
+            player->getComponent<PlayerMoveComponent>()->onGround = true;
+        }
+        std::cout << "Colliding with " << collider->tag << std::endl;
+    };
     gameObjects.push_back(player);
 
     for (int i = 0; i < 6; i++)
@@ -92,6 +98,12 @@ void init()
         go->scale = glm::vec3(0.15f);
         gameObjects.push_back(go);
     }
+
+    GameObject* floor = new GameObject();
+    floor->position = glm::vec3(0, -5, 0);
+    floor->addComponent(new CubeComponent(glm::vec3(5, 0.5f, 5), glm::vec4(0.5f, 0.5f, 0.5f, 1)));
+    floor->addComponent(new ColliderComponent(collisionManager, glm::vec3(5, 0.5f, 5), "floor"));
+    gameObjects.push_back(floor);
 }
 
 
@@ -103,7 +115,7 @@ void update()
 
     //camera->update(window);
     collisionManager->isColliding(player->getComponent<ColliderComponent>());
-
+    std::cout << player->position.y << std::endl;
     for (auto& go : gameObjects)
         go->update(deltaTime);
 }
@@ -122,13 +134,6 @@ void draw()
     tigl::shader->setModelMatrix(glm::mat4(1.0f));
 
     tigl::shader->enableColor(true);
-
-    //tigl::begin(GL_QUADS);
-    //tigl::addVertex(Vertex::P(glm::vec3(-1, -1, 1)));
-    //tigl::addVertex(Vertex::P(glm::vec3(-1, -1, -1)));
-    //tigl::addVertex(Vertex::P(glm::vec3(1, -1, -1)));
-    //tigl::addVertex(Vertex::P(glm::vec3(1, -1, 1)));
-    //tigl::end();
 
     for (auto& go : gameObjects)
         go->draw();

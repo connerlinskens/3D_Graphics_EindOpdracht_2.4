@@ -16,6 +16,8 @@ void CollisionManager::addCollider(ColliderComponent* collider)
 
 bool CollisionManager::isColliding(ColliderComponent* collider)
 {
+	bool collided = false;
+
 	GameObject* colliderGO = collider->getGameObject();
 	glm::vec3 colliderBounds = collider->bounds;
 	colliderBounds *= colliderGO->scale;
@@ -33,9 +35,9 @@ bool CollisionManager::isColliding(ColliderComponent* collider)
 			(colliderGO->position.y - colliderBounds.y <= cGO->position.y + cBounds.y && colliderGO->position.y + colliderBounds.y >= cGO->position.y - cBounds.y) &&
 			(colliderGO->position.z - colliderBounds.z <= cGO->position.z + cBounds.z && colliderGO->position.z + colliderBounds.z >= cGO->position.z - cBounds.z))
 		{
+			collided = true;
 			collider->onCollision(c);
-			return true;
 		}
 	}
-	return false;
+	return collided;
 }

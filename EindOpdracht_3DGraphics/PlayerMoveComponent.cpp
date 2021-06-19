@@ -9,6 +9,11 @@ PlayerMoveComponent::PlayerMoveComponent(GLFWwindow* wn)
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	if (glfwRawMouseMotionSupported())
 		glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+
+	onGround = false;
+	gravity = -6.0f;
+	jumpVelocity = 15.0f;
+	yVelocity = gravity;
 }
 
 PlayerMoveComponent::~PlayerMoveComponent()
@@ -23,6 +28,16 @@ void PlayerMoveComponent::move(float angle, float fac)
 
 void PlayerMoveComponent::update(float deltaTime)
 {
+	if (onGround) {
+		yVelocity = 0;
+
+		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+			onGround = false;
+			yVelocity = jumpVelocity;
+		}
+	}
+
+
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		move(0, 0.05f);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
@@ -31,4 +46,9 @@ void PlayerMoveComponent::update(float deltaTime)
 		move(90, 0.05f);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		move(-90, 0.05f);
+
+	gameObject->position.y += yVelocity * deltaTime;
+
+	if (yVelocity > gravity)
+		yVelocity += gravity / 6.0f;
 }
