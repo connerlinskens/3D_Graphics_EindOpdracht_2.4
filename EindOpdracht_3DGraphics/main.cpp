@@ -2,13 +2,17 @@
 #include <GLFW/glfw3.h>
 #include "tigl.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include "Components.h"
+#include <list>
+#include "GameObject.h"
+#include "CollisionManager.h"
+#include "DebugCamera.h"
+
 using tigl::Vertex;
 
 #pragma comment(lib, "glfw3.lib")
 #pragma comment(lib, "glew32s.lib")
 #pragma comment(lib, "opengl32.lib")
-
-#include "DebugCamera.h"
 
 GLFWwindow* window;
 
@@ -46,23 +50,57 @@ int main(void)
     return 0;
 }
 
-Camera* camera;
+//Camera* debugCamera;
+GameObject* player;
+CollisionManager* collisionManager;
+std::list<GameObject*> gameObjects;
+double lastFrameTime = 0;
 
 void init()
 {
+    glEnable(GL_DEPTH_TEST);
+
     glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
     {
         if (key == GLFW_KEY_ESCAPE)
             glfwSetWindowShouldClose(window, true);
     });
 
-    camera = new DebugCamera(window);
+    //debugCamera = new DebugCamera(window);
+    //debugCamera->position = glm::vec3(0, -10, 0);
+    //debugCamera->rotation = glm::vec3(glm::radians(90.0f), 0, 0);
+
+    collisionManager = new CollisionManager();
+
+    player = new GameObject();
+    player->position = glm::vec3(0, 0, -5);
+    player->addComponent(new CameraComponent(window));
+    player->addComponent(new PlayerMoveComponent(window));
+    player->addComponent(new ColliderComponent(glm::vec3(1, 2, 1), "player"));
+    gameObjects.push_back(player);
+
+    for (int i = 0; i < 6; i++)
+    {
+        GameObject* go = new GameObject();
+        go->position = glm::vec3(-2.5f + i, 0, 0);
+        go->addComponent(new CubeComponent(glm::vec3(1, 2, 1) , glm::vec4(0.2f + (0.2f * i), 0, 0, 1)));
+        go->addComponent(new ColliderComponent(glm::vec3(1, 2, 1)));
+        go->scale = glm::vec3(0.15f);
+        gameObjects.push_back(go);
+    }
 }
 
 
 void update()
 {
-    camera->update(window);
+    double currentFrameTime = glfwGetTime();
+    double deltaTime = currentFrameTime - lastFrameTime;
+    lastFrameTime = currentFrameTime;
+
+    //camera->update(window);
+
+    for (auto& go : gameObjects)
+        go->update(deltaTime);
 }
 
 void draw()
@@ -75,17 +113,18 @@ void draw()
     glm::mat4 projection = glm::perspective(glm::radians(75.0f), viewport[2] / (float)viewport[3], 0.01f, 100.0f);
 
     tigl::shader->setProjectionMatrix(projection);
-    tigl::shader->setViewMatrix(camera->getViewMatrix());
+    tigl::shader->setViewMatrix(player->getComponent<CameraComponent>()->getViewMatrix());
     tigl::shader->setModelMatrix(glm::mat4(1.0f));
 
     tigl::shader->enableColor(true);
 
-    glEnable(GL_DEPTH_TEST);
+    //tigl::begin(GL_QUADS);
+    //tigl::addVertex(Vertex::P(glm::vec3(-1, -1, 1)));
+    //tigl::addVertex(Vertex::P(glm::vec3(-1, -1, -1)));
+    //tigl::addVertex(Vertex::P(glm::vec3(1, -1, -1)));
+    //tigl::addVertex(Vertex::P(glm::vec3(1, -1, 1)));
+    //tigl::end();
 
-    tigl::begin(GL_QUADS);
-    tigl::addVertex(Vertex::P(glm::vec3(-1, -1, 1)));
-    tigl::addVertex(Vertex::P(glm::vec3(-1, -1, -1)));
-    tigl::addVertex(Vertex::P(glm::vec3(1, -1, -1)));
-    tigl::addVertex(Vertex::P(glm::vec3(1, -1, 1)));
-    tigl::end();
+    for (auto& go : gameObjects)
+        go->draw();
 }
