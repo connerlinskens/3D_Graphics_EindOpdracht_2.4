@@ -87,7 +87,7 @@ void init()
     collisionManager = new CollisionManager();
 
     player = new GameObject();
-    player->position = glm::vec3(0, 120, 5);
+    player->position = glm::vec3(0, 50, 5);
     player->scale = glm::vec3(0.5f);
     player->addComponent(new CameraComponent(window));
     player->addComponent(new PlayerMoveComponent(window));
@@ -107,7 +107,7 @@ void init()
             //running = false;
             player->position = glm::vec3(0, 0, 5);
         }
-        std::cout << "Colliding with " << collider->tag << std::endl;
+        //std::cout << "Colliding with " << collider->tag << std::endl;
     };
     gameObjects.push_back(player);
 
@@ -141,7 +141,7 @@ void init()
     enemy->addComponent(new ModelComponent(enemyModel));
     enemy->addComponent(new ColliderComponent(collisionManager, glm::vec3(0.4f, 1, 0.4f), "enemy"));
     std::vector<glm::vec3> targets1 = { enemy->position, glm::vec3(-3, -4.5f, 0), glm::vec3(-3, -4.5f, 4) };
-    enemy->addComponent(new EnemyMoveComponent(targets1));
+    enemy->addComponent(new EnemyMoveComponent(targets1, 2.0f));
     gameObjects.push_back(enemy);
 }
 
