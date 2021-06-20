@@ -136,11 +136,11 @@ void init()
     gameObjects.push_back(moveFloor);
 
     GameObject* enemy = new GameObject();
-    enemy->position = glm::vec3(0, -5, 0);
+    enemy->position = glm::vec3(0, -4.5f, 0);
     enemy->scale = glm::vec3(0.008f);
     enemy->addComponent(new ModelComponent(enemyModel));
     enemy->addComponent(new ColliderComponent(collisionManager, glm::vec3(0.4f, 1, 0.4f), "enemy"));
-    std::vector<glm::vec3> targets1 = { enemy->position, glm::vec3(-3, -5, 0), glm::vec3(-3, -5, 4) };
+    std::vector<glm::vec3> targets1 = { enemy->position, glm::vec3(-3, -4.5f, 0), glm::vec3(-3, -4.5f, 4) };
     enemy->addComponent(new EnemyMoveComponent(targets1));
     gameObjects.push_back(enemy);
 }

@@ -16,6 +16,12 @@ EnemyMoveComponent::~EnemyMoveComponent()
 {
 }
 
+void EnemyMoveComponent::lookAtTarget()
+{
+	float rotation = acos(glm::dot(glm::normalize(gameObject->rotation), directionToTarget(targets[currentTarget])));
+	gameObject->rotation.y += glm::radians(rotation);
+}
+
 void EnemyMoveComponent::update(float deltaTime)
 {
 	if (distanceToTarget(targets[currentTarget]) > moveSpeed / 25.0f) {
@@ -42,5 +48,7 @@ void EnemyMoveComponent::update(float deltaTime)
 				flip = false;
 			}
 		}
+
+		//lookAtTarget();
 	}
 }
