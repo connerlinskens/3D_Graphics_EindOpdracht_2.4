@@ -8,3 +8,5 @@
 #include "ColliderComponent.h"
 #include "FloorMoveComponent.h"
 #include "ModelComponent.h"
+#include "MoveComponent.h"
+#include "EnemyMoveComponent.h"

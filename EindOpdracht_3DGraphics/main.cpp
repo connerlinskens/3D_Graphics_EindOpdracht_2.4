@@ -17,10 +17,14 @@ using tigl::Vertex;
 #pragma comment(lib, "opengl32.lib")
 
 GLFWwindow* window;
+bool running = true;
+ObjModel* enemyModel;
+Texture* blankTexture;
 
 void init();
 void update();
 void draw();
+void resetGame();
 
 int main(void)
 {
@@ -36,14 +40,22 @@ int main(void)
 
     tigl::init();
 
+    enemyModel = new ObjModel("resources/enemy/among_us.obj");
+    blankTexture = new Texture("resources/blank_texture.jpg");
+
     init();
 
 	while (!glfwWindowShouldClose(window))
 	{
-		update();
-		draw();
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+        if (running) {
+            update();
+            draw();
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+        }
+        else {
+            resetGame();
+        }
 	}
 
 	glfwTerminate();
@@ -75,7 +87,7 @@ void init()
     collisionManager = new CollisionManager();
 
     player = new GameObject();
-    player->position = glm::vec3(0, 5, 5);
+    player->position = glm::vec3(0, 120, 5);
     player->scale = glm::vec3(0.5f);
     player->addComponent(new CameraComponent(window));
     player->addComponent(new PlayerMoveComponent(window));
@@ -91,6 +103,10 @@ void init()
             player->getComponent<PlayerMoveComponent>()->yVelocity = 0;
             collider->getGameObject()->addChild(player);
         }
+        else if (collider->tag == "enemy") {
+            //running = false;
+            player->position = glm::vec3(0, 0, 5);
+        }
         std::cout << "Colliding with " << collider->tag << std::endl;
     };
     gameObjects.push_back(player);
@@ -99,7 +115,7 @@ void init()
     {
         GameObject* go = new GameObject();
         go->position = glm::vec3(-2.5f + i, 0, 0);
-        go->addComponent(new CubeComponent(glm::vec3(1, 2, 1) , glm::vec4(0.2f + (0.2f * i), 0, 0, 1)));
+        go->addComponent(new CubeComponent(glm::vec3(1, 2, 1) , glm::vec4(0.2f + (0.2f * i), 0, 0, 1), blankTexture));
         go->addComponent(new ColliderComponent(collisionManager, glm::vec3(1, 2, 1)));
         go->scale = glm::vec3(0.15f);
         gameObjects.push_back(go);
@@ -107,22 +123,25 @@ void init()
 
     GameObject* floor = new GameObject();
     floor->position = glm::vec3(0, -5, 5);
-    floor->addComponent(new CubeComponent(glm::vec3(5, 0.5f, 5), glm::vec4(0.5f, 0.5f, 0.5f, 1)));
+    floor->addComponent(new CubeComponent(glm::vec3(5, 0.5f, 5), glm::vec4(0.5f, 0.5f, 0.5f, 1), blankTexture));
     floor->addComponent(new ColliderComponent(collisionManager, glm::vec3(5, 0.5f, 5), "floor"));
     gameObjects.push_back(floor);
 
     GameObject* moveFloor = new GameObject();
     moveFloor->position = glm::vec3(-5, -5, -2);
-    moveFloor->addComponent(new CubeComponent(glm::vec3(1, 0.5f, 1), glm::vec4(0.5f, 0.5f, 0.5f, 1)));
+    moveFloor->addComponent(new CubeComponent(glm::vec3(1, 0.5f, 1), glm::vec4(0.5f, 0.5f, 0.5f, 1), blankTexture));
     moveFloor->addComponent(new ColliderComponent(collisionManager, glm::vec3(1, 0.5f, 1), "moving_floor"));
     std::vector<glm::vec3> targets = { moveFloor->position, glm::vec3(5, -5, -2) };
     moveFloor->addComponent(new FloorMoveComponent(targets));
     gameObjects.push_back(moveFloor);
 
     GameObject* enemy = new GameObject();
-    enemy->position = glm::vec3(2, 0, 2);
-    enemy->addComponent(new ModelComponent(new ObjModel("resources/pawn/pawn.obj")));
-    enemy->addComponent(new ColliderComponent(collisionManager, glm::vec3(0.2f, 1, 0.2f), "enemy"));
+    enemy->position = glm::vec3(0, -5, 0);
+    enemy->scale = glm::vec3(0.008f);
+    enemy->addComponent(new ModelComponent(enemyModel));
+    enemy->addComponent(new ColliderComponent(collisionManager, glm::vec3(0.4f, 1, 0.4f), "enemy"));
+    std::vector<glm::vec3> targets1 = { enemy->position, glm::vec3(-3, -5, 0), glm::vec3(-3, -5, 4) };
+    enemy->addComponent(new EnemyMoveComponent(targets1));
     gameObjects.push_back(enemy);
 }
 
@@ -158,7 +177,18 @@ void draw()
     tigl::shader->setModelMatrix(glm::mat4(1.0f));
 
     tigl::shader->enableColor(true);
+    tigl::shader->enableTexture(true);
 
     for (auto& go : gameObjects)
         go->draw();
+}
+
+void resetGame() {
+    running = true;
+    delete player;
+    delete collisionManager;
+    gameObjects.clear();
+    lastFrameTime = glfwGetTime();
+
+    init();
 }

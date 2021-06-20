@@ -11,8 +11,8 @@ PlayerMoveComponent::PlayerMoveComponent(GLFWwindow* wn)
 		glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 
 	onGround = false;
-	gravity = -6.0f;
-	jumpVelocity = 15.0f;
+	gravity = -12.0f;
+	jumpVelocity = 5.0f;
 	yVelocity = gravity;
 }
 
@@ -48,5 +48,5 @@ void PlayerMoveComponent::update(float deltaTime)
 	gameObject->position.y += yVelocity * deltaTime;
 
 	if (yVelocity > gravity)
-		yVelocity += gravity / 6.0f;
+		yVelocity += gravity * deltaTime;
 }
