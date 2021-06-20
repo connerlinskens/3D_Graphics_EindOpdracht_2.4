@@ -8,6 +8,7 @@ class CameraComponent : public Component
 private:
 	GLFWwindow* window;
 	float xRot;
+	float maxXRot;
 
 public:
 	CameraComponent(GLFWwindow*);

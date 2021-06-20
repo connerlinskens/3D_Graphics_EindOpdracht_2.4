@@ -7,6 +7,9 @@
 #include "GameObject.h"
 #include "CollisionManager.h"
 #include "DebugCamera.h"
+#include "Floor.h"
+#include "MovingFloor.h"
+#include "Enemy.h"
 
 #include <iostream>
 
@@ -20,6 +23,7 @@ GLFWwindow* window;
 bool running = true;
 ObjModel* enemyModel;
 Texture* blankTexture;
+Texture* floorTexture;
 
 void init();
 void update();
@@ -42,6 +46,7 @@ int main(void)
 
     enemyModel = new ObjModel("resources/enemy/among_us.obj");
     blankTexture = new Texture("resources/blank_texture.jpg");
+    floorTexture = new Texture("resources/floor.jpg");
 
     init();
 
@@ -107,42 +112,15 @@ void init()
             //running = false;
             player->position = glm::vec3(0, 0, 5);
         }
-        //std::cout << "Colliding with " << collider->tag << std::endl;
     };
     gameObjects.push_back(player);
+    
+    
+    gameObjects.push_back(new Floor(collisionManager, glm::vec3(0, -5, 5), glm::vec3(5, 0.5f, 5), glm::vec4(1, 1, 1, 1), floorTexture, "floor", 5.0f));
 
-    for (int i = 0; i < 6; i++)
-    {
-        GameObject* go = new GameObject();
-        go->position = glm::vec3(-2.5f + i, 0, 0);
-        go->addComponent(new CubeComponent(glm::vec3(1, 2, 1) , glm::vec4(0.2f + (0.2f * i), 0, 0, 1), blankTexture));
-        go->addComponent(new ColliderComponent(collisionManager, glm::vec3(1, 2, 1)));
-        go->scale = glm::vec3(0.15f);
-        gameObjects.push_back(go);
-    }
+    gameObjects.push_back(new MovingFloor(collisionManager, glm::vec3(-5, -5, -2), glm::vec3(1, 0.5f, 1), glm::vec4(1, 1, 1, 1), floorTexture, { glm::vec3(-5, -5, -2), glm::vec3(5, -5, -2) }));
 
-    GameObject* floor = new GameObject();
-    floor->position = glm::vec3(0, -5, 5);
-    floor->addComponent(new CubeComponent(glm::vec3(5, 0.5f, 5), glm::vec4(0.5f, 0.5f, 0.5f, 1), blankTexture));
-    floor->addComponent(new ColliderComponent(collisionManager, glm::vec3(5, 0.5f, 5), "floor"));
-    gameObjects.push_back(floor);
-
-    GameObject* moveFloor = new GameObject();
-    moveFloor->position = glm::vec3(-5, -5, -2);
-    moveFloor->addComponent(new CubeComponent(glm::vec3(1, 0.5f, 1), glm::vec4(0.5f, 0.5f, 0.5f, 1), blankTexture));
-    moveFloor->addComponent(new ColliderComponent(collisionManager, glm::vec3(1, 0.5f, 1), "moving_floor"));
-    std::vector<glm::vec3> targets = { moveFloor->position, glm::vec3(5, -5, -2) };
-    moveFloor->addComponent(new FloorMoveComponent(targets));
-    gameObjects.push_back(moveFloor);
-
-    GameObject* enemy = new GameObject();
-    enemy->position = glm::vec3(0, -4.5f, 0);
-    enemy->scale = glm::vec3(0.008f);
-    enemy->addComponent(new ModelComponent(enemyModel));
-    enemy->addComponent(new ColliderComponent(collisionManager, glm::vec3(0.4f, 1, 0.4f), "enemy"));
-    std::vector<glm::vec3> targets1 = { enemy->position, glm::vec3(-3, -4.5f, 0), glm::vec3(-3, -4.5f, 4) };
-    enemy->addComponent(new EnemyMoveComponent(targets1, 2.0f));
-    gameObjects.push_back(enemy);
+    gameObjects.push_back(new Enemy(collisionManager, glm::vec3(0, -4.5f, 0), enemyModel, glm::vec3(0.4f, 1, 0.4f), { glm::vec3(0, -4.5f, 0), glm::vec3(-3, -4.5f, 0), glm::vec3(-3, -4.5f, 4) }, 3.0f));
 }
 
 

@@ -11,7 +11,7 @@ public:
 	ColliderComponent(CollisionManager* colManager, glm::vec3 colBounds, std::string colTag = "default");
 	~ColliderComponent();
 
-	bool debugDraw = true;
+	bool debugDraw = false;
 	glm::vec3 bounds;
 	std::string tag;
 	void (*onCollision)(ColliderComponent* collider);
