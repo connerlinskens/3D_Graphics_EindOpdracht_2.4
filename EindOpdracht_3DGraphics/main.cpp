@@ -69,7 +69,6 @@ int main(void)
     return 0;
 }
 
-//Camera* debugCamera;
 GameObject* player;
 CollisionManager* collisionManager;
 std::list<GameObject*> gameObjects;
@@ -84,10 +83,6 @@ void init()
         if (key == GLFW_KEY_ESCAPE)
             glfwSetWindowShouldClose(window, true);
     });
-
-    //debugCamera = new DebugCamera(window);
-    //debugCamera->position = glm::vec3(0, -10, 0);
-    //debugCamera->rotation = glm::vec3(glm::radians(90.0f), 0, 0);
 
     collisionManager = new CollisionManager();
 
@@ -115,12 +110,28 @@ void init()
     };
     gameObjects.push_back(player);
     
+    // Section one
+    gameObjects.push_back(new Floor(collisionManager, glm::vec3(0, -5, 5), glm::vec3(5, 0.5f, 5), glm::vec4(1, 1, 1, 1), floorTexture, "floor", 5.0f, 5.0f));
+    gameObjects.push_back(new Enemy(collisionManager, glm::vec3(3, -4.5f, 1), enemyModel, glm::vec3(0.5f, 1, 0.5f), { glm::vec3(3, -4.5f, 1), glm::vec3(-3, -4.5f, 1) }, 4.0f));
+
+    gameObjects.push_back(new Floor(collisionManager, glm::vec3(0, -5, -6), glm::vec3(1, 0.5f, 5), glm::vec4(1, 1, 1, 1), floorTexture, "floor", 5.0f));
+    gameObjects.push_back(new MovingFloor(collisionManager, glm::vec3(-2, -5, -10), glm::vec3(1, 0.5f, 1), glm::vec4(1, 1, 1, 1), floorTexture, { glm::vec3(-2, -5, -10), glm::vec3(-12, -5, -10) }, 3.0f));
     
-    gameObjects.push_back(new Floor(collisionManager, glm::vec3(0, -5, 5), glm::vec3(5, 0.5f, 5), glm::vec4(1, 1, 1, 1), floorTexture, "floor", 5.0f));
+    // Section two
+    gameObjects.push_back(new Floor(collisionManager, glm::vec3(-14, -5, -19), glm::vec3(1, 0.5f, 10), glm::vec4(1, 1, 1, 1), floorTexture, "floor", 10.0f));
+    gameObjects.push_back(new Floor(collisionManager, glm::vec3(-12, -5, -23), glm::vec3(1, 0.5f, 1), glm::vec4(1, 1, 1, 1), floorTexture, "floor"));
+    gameObjects.push_back(new Enemy(collisionManager, glm::vec3(-14, -4.5f, -28), enemyModel, glm::vec3(0.5f, 1, 0.5f), { glm::vec3(-14, -4.5f, -28), glm::vec3(-14, -4.5f, -18) }, 2.0f));
 
-    gameObjects.push_back(new MovingFloor(collisionManager, glm::vec3(-5, -5, -2), glm::vec3(1, 0.5f, 1), glm::vec4(1, 1, 1, 1), floorTexture, { glm::vec3(-5, -5, -2), glm::vec3(5, -5, -2) }));
+    gameObjects.push_back(new Floor(collisionManager, glm::vec3(-15, -5.5f, -28), glm::vec3(1, 0.5f, 1), glm::vec4(1, 1, 1, 1), floorTexture, "floor"));
+    gameObjects.push_back(new Floor(collisionManager, glm::vec3(-16, -6.0f, -28), glm::vec3(1, 0.5f, 1), glm::vec4(1, 1, 1, 1), floorTexture, "floor"));
+    gameObjects.push_back(new Floor(collisionManager, glm::vec3(-17, -6.5f, -28), glm::vec3(1, 0.5f, 1), glm::vec4(1, 1, 1, 1), floorTexture, "floor"));
+    gameObjects.push_back(new Floor(collisionManager, glm::vec3(-18, -7.0f, -28), glm::vec3(1, 0.5f, 1), glm::vec4(1, 1, 1, 1), floorTexture, "floor"));
+    gameObjects.push_back(new Floor(collisionManager, glm::vec3(-20, -7.0f, -31), glm::vec3(1, 0.5f, 4), glm::vec4(1, 1, 1, 1), floorTexture, "floor", 4.0f));
 
-    gameObjects.push_back(new Enemy(collisionManager, glm::vec3(0, -4.5f, 0), enemyModel, glm::vec3(0.4f, 1, 0.4f), { glm::vec3(0, -4.5f, 0), glm::vec3(-3, -4.5f, 0), glm::vec3(-3, -4.5f, 4) }, 3.0f));
+
+
+
+
 }
 
 
@@ -135,15 +146,14 @@ void update()
         if (go->getComponent<ColliderComponent>())
             collisionManager->isColliding(go->getComponent<ColliderComponent>());
     
-    //collisionManager->isColliding(player->getComponent<ColliderComponent>());
-
     for (auto& go : gameObjects)
         go->update(deltaTime);
 }
 
 void draw()
 {
-    glClearColor(0.3f, 0.4f, 0.6f, 1.0f);
+    //glClearColor(0.3f, 0.4f, 0.6f, 1.0f);
+    glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     int viewport[4];
@@ -156,6 +166,18 @@ void draw()
 
     tigl::shader->enableColor(true);
     tigl::shader->enableTexture(true);
+    tigl::shader->enableFog(true);
+    tigl::shader->enableLighting(true);
+
+    tigl::shader->setFogColor(glm::vec3(0.7f, 0.7f, 0.7f));
+    tigl::shader->setFogExp(0.1f);
+
+    tigl::shader->setLightCount(1);
+    tigl::shader->setLightDirectional(0, true);
+    tigl::shader->setLightAmbient(0, glm::vec3(0.7f, 0.7f, 0.7f));
+    tigl::shader->setLightDiffuse(0, glm::vec3(0.7f, 0.7f, 0.7f));
+    tigl::shader->setLightSpecular(0, glm::vec3(0.1f, 0.1f, 0.1f));
+    tigl::shader->setShinyness(32.0f);
 
     for (auto& go : gameObjects)
         go->draw();

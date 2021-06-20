@@ -2,6 +2,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "GameObject.h"
 
+#include <iostream>
+
 PlayerMoveComponent::PlayerMoveComponent(GLFWwindow* wn)
 {
 	window = wn;
@@ -49,4 +51,9 @@ void PlayerMoveComponent::update(float deltaTime)
 
 	if (yVelocity > gravity)
 		yVelocity += gravity * deltaTime;
+
+	if(gameObject->position.y < -25.f)
+		gameObject->position = glm::vec3(0, 0, 5);
+
+	std::cout << gameObject->position.x << " " << gameObject->position.y << " " << gameObject->position.z << std::endl;
 }
