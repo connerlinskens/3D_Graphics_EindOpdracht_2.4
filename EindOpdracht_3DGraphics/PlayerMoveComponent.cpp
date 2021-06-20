@@ -16,6 +16,7 @@ PlayerMoveComponent::PlayerMoveComponent(GLFWwindow* wn)
 	gravity = -12.0f;
 	jumpVelocity = 5.0f;
 	yVelocity = gravity;
+	disabled = false;
 }
 
 PlayerMoveComponent::~PlayerMoveComponent()
@@ -30,13 +31,15 @@ void PlayerMoveComponent::move(float angle, float fac)
 
 void PlayerMoveComponent::update(float deltaTime)
 {
+	if (disabled)
+		return;
+
 	if (onGround) {
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
 			onGround = false;
 			yVelocity = jumpVelocity;
 		}
 	}
-
 
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		move(0, 0.05f);
@@ -54,6 +57,4 @@ void PlayerMoveComponent::update(float deltaTime)
 
 	if(gameObject->position.y < -25.f)
 		gameObject->position = glm::vec3(0, 0, 5);
-
-	std::cout << gameObject->position.x << " " << gameObject->position.y << " " << gameObject->position.z << std::endl;
 }

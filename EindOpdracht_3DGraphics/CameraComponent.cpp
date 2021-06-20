@@ -8,6 +8,7 @@ CameraComponent::CameraComponent(GLFWwindow* wn)
 	window = wn;
 	xRot = 0;
 	maxXRot = 1.2f;
+	disabled = false;
 }
 
 CameraComponent::~CameraComponent()
@@ -16,6 +17,9 @@ CameraComponent::~CameraComponent()
 
 void CameraComponent::update(float deltaTime)
 {
+	if (disabled)
+		return;
+
 	double x, y;
 	glfwGetCursorPos(window, &x, &y);
 
@@ -42,4 +46,16 @@ glm::mat4 CameraComponent::getViewMatrix()
 	viewMatrix = glm::rotate(viewMatrix, gameObject->rotation.z, glm::vec3(0, 0, 1));
 	viewMatrix = glm::translate(viewMatrix, gameObject->position * glm::vec3(-1));
 	return viewMatrix;
+}
+
+glm::mat4 CameraComponent::getModelMatrix()
+{
+	glm::mat4 modelMatrix(1.0f);
+	modelMatrix = glm::translate(modelMatrix, gameObject->position);
+	modelMatrix = glm::rotate(modelMatrix, xRot, glm::vec3(1, 0, 0));
+	modelMatrix = glm::rotate(modelMatrix, gameObject->rotation.y, glm::vec3(0, 1, 0));
+	modelMatrix = glm::rotate(modelMatrix, gameObject->rotation.z, glm::vec3(0, 0, 1));
+	modelMatrix = glm::scale(modelMatrix, gameObject->scale);
+
+	return modelMatrix;
 }

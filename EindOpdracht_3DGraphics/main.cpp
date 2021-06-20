@@ -20,10 +20,11 @@ using tigl::Vertex;
 #pragma comment(lib, "opengl32.lib")
 
 GLFWwindow* window;
-bool running = true;
+bool completed = false;
 ObjModel* enemyModel;
 Texture* blankTexture;
 Texture* floorTexture;
+Texture* completeTexture;
 
 void init();
 void update();
@@ -34,7 +35,7 @@ int main(void)
 {
     if (!glfwInit())
         throw "Could not initialize glwf";
-    window = glfwCreateWindow(1400, 800, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(1400, 800, "Among Them", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -47,24 +48,19 @@ int main(void)
     enemyModel = new ObjModel("resources/enemy/among_us.obj");
     blankTexture = new Texture("resources/blank_texture.jpg");
     floorTexture = new Texture("resources/floor.jpg");
+    completeTexture = new Texture("resources/complete_screen.png");
 
     init();
 
 	while (!glfwWindowShouldClose(window))
 	{
-        if (running) {
-            update();
-            draw();
-            glfwSwapBuffers(window);
-            glfwPollEvents();
-        }
-        else {
-            resetGame();
-        }
+        update();
+        draw();
+        glfwSwapBuffers(window);
+        glfwPollEvents();
 	}
 
 	glfwTerminate();
-
 
     return 0;
 }
@@ -82,12 +78,19 @@ void init()
     {
         if (key == GLFW_KEY_ESCAPE)
             glfwSetWindowShouldClose(window, true);
+        if (key == GLFW_KEY_SPACE && completed) {
+            completed = false;
+            player->position = glm::vec3(0, -2, 5);
+            player->getComponent<PlayerMoveComponent>()->disabled = false;
+            player->getComponent<CameraComponent>()->disabled = false;
+        }
     });
 
     collisionManager = new CollisionManager();
 
     player = new GameObject();
     player->position = glm::vec3(0, 50, 5);
+    //player->position = glm::vec3(-20, 40, -35);
     player->scale = glm::vec3(0.5f);
     player->addComponent(new CameraComponent(window));
     player->addComponent(new PlayerMoveComponent(window));
@@ -104,8 +107,12 @@ void init()
             collider->getGameObject()->addChild(player);
         }
         else if (collider->tag == "enemy") {
-            //running = false;
             player->position = glm::vec3(0, 0, 5);
+        }
+        else if (collider->tag == "finish") {
+            player->getComponent<PlayerMoveComponent>()->disabled = true;
+            player->getComponent<CameraComponent>()->disabled = true;
+            completed = true;
         }
     };
     gameObjects.push_back(player);
@@ -128,10 +135,18 @@ void init()
     gameObjects.push_back(new Floor(collisionManager, glm::vec3(-18, -7.0f, -28), glm::vec3(1, 0.5f, 1), glm::vec4(1, 1, 1, 1), floorTexture, "floor"));
     gameObjects.push_back(new Floor(collisionManager, glm::vec3(-20, -7.0f, -31), glm::vec3(1, 0.5f, 4), glm::vec4(1, 1, 1, 1), floorTexture, "floor", 4.0f));
 
+    // Section three
+    gameObjects.push_back(new Floor(collisionManager, glm::vec3(-20, -7.0f, -39), glm::vec3(4, 0.5f, 4), glm::vec4(1, 1, 1, 1), floorTexture, "floor", 4.0f, 4.0f));
+    gameObjects.push_back(new Enemy(collisionManager, glm::vec3(-17, -6.5f, -36), enemyModel, glm::vec3(0.5f, 1, 0.5f), { glm::vec3(-17, -6.5f, -36), glm::vec3(-23, -6.5f, -36), glm::vec3(-23, -6.5f, -42), glm::vec3(-17, -6.5f, -42) }, 5.5f, true));
+    gameObjects.push_back(new Enemy(collisionManager, glm::vec3(-23, -6.5f, -36), enemyModel, glm::vec3(0.5f, 1, 0.5f), { glm::vec3(-23, -6.5f, -36), glm::vec3(-23, -6.5f, -42), glm::vec3(-17, -6.5f, -42), glm::vec3(-17, -6.5f, -36) }, 5.5f, true));
+    gameObjects.push_back(new Enemy(collisionManager, glm::vec3(-23, -6.5f, -42), enemyModel, glm::vec3(0.5f, 1, 0.5f), { glm::vec3(-23, -6.5f, -42), glm::vec3(-17, -6.5f, -42), glm::vec3(-17, -6.5f, -36), glm::vec3(-23, -6.5f, -36) }, 5.5f, true));
 
+    gameObjects.push_back(new Floor(collisionManager, glm::vec3(-20, -7.0f, -45), glm::vec3(1, 0.5f, 4), glm::vec4(1, 1, 1, 1), floorTexture, "floor", 4.0f));
 
-
-
+    GameObject* finish = new GameObject();
+    finish->position = glm::vec3(-20, -7.0f, -48);
+    finish->addComponent(new ColliderComponent(collisionManager, glm::vec3(2), "finish"));
+    gameObjects.push_back(finish);
 }
 
 
@@ -170,7 +185,7 @@ void draw()
     tigl::shader->enableLighting(true);
 
     tigl::shader->setFogColor(glm::vec3(0.7f, 0.7f, 0.7f));
-    tigl::shader->setFogExp(0.1f);
+    tigl::shader->setFogExp(0.2f);
 
     tigl::shader->setLightCount(1);
     tigl::shader->setLightDirectional(0, true);
@@ -181,10 +196,21 @@ void draw()
 
     for (auto& go : gameObjects)
         go->draw();
+
+    //if (completed) {
+    //    tigl::shader->setModelMatrix(player->getComponent<CameraComponent>()->getModelMatrix());
+    //    completeTexture->bind();
+    //    tigl::begin(GL_QUADS);
+    //    tigl::addVertex(Vertex::PT(glm::vec3(0, 0, 0), glm::vec2(0, 0)));
+    //    tigl::addVertex(Vertex::PT(glm::vec3(1, 0, 0), glm::vec2(1, 0)));
+    //    tigl::addVertex(Vertex::PT(glm::vec3(1, 1, 0), glm::vec2(1, 1)));
+    //    tigl::addVertex(Vertex::PT(glm::vec3(0, 1, 0), glm::vec2(0, 1)));
+    //    tigl::end();
+    //    tigl::shader->setModelMatrix(glm::mat4(1.0f));
+    //}
 }
 
 void resetGame() {
-    running = true;
     delete player;
     delete collisionManager;
     gameObjects.clear();

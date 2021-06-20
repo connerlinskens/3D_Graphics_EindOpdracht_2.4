@@ -18,6 +18,7 @@ public:
 
 	float yVelocity;
 	bool onGround;
+	bool disabled;
 
 	virtual void update(float deltaTime) override;
 };

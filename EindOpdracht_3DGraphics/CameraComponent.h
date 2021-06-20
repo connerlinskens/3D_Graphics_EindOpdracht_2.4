@@ -14,8 +14,11 @@ public:
 	CameraComponent(GLFWwindow*);
 	~CameraComponent();
 
+	bool disabled;
+
 	virtual void update(float deltaTime) override;
 
 	glm::mat4 getViewMatrix();
+	glm::mat4 getModelMatrix();
 };
 
