@@ -10,6 +10,7 @@ class GameObject
 {
 private:
 	std::list<Component*> components;
+	std::list<GameObject*> children;
 
 	DrawComponent* drawComponent = nullptr;
 	ColliderComponent* colliderComponent = nullptr;
@@ -23,6 +24,10 @@ public:
 	std::list<Component*> getComponents();
 	void update(float deltaTime);
 	void draw(const glm::mat4 & = glm::mat4(1));
+
+	void addChild(GameObject* child);
+	void removeChild(GameObject* child);
+	std::list<GameObject*> getChildren();
 
 	template<class T>
 	T* getComponent()

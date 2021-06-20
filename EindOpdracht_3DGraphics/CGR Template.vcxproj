@@ -163,6 +163,7 @@
     <ClCompile Include="CubeComponent.cpp" />
     <ClCompile Include="DebugCamera.cpp" />
     <ClCompile Include="DrawComponent.cpp" />
+    <ClCompile Include="FloorMoveComponent.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GeometryComponent.cpp" />
     <ClCompile Include="main.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="CubeComponent.h" />
     <ClInclude Include="DebugCamera.h" />
     <ClInclude Include="DrawComponent.h" />
+    <ClInclude Include="FloorMoveComponent.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GeometryComponent.h" />
     <ClInclude Include="PlayerMoveComponent.h" />

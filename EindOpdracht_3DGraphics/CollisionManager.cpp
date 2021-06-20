@@ -36,7 +36,10 @@ bool CollisionManager::isColliding(ColliderComponent* collider)
 			(colliderGO->position.z - colliderBounds.z <= cGO->position.z + cBounds.z && colliderGO->position.z + colliderBounds.z >= cGO->position.z - cBounds.z))
 		{
 			collided = true;
-			collider->onCollision(c);
+			
+			// Call on collision method
+			if(collider->onCollision != nullptr)
+				collider->onCollision(c);
 		}
 	}
 	return collided;

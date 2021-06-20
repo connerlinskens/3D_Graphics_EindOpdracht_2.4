@@ -6,3 +6,4 @@
 #include "CameraComponent.h"
 #include "PlayerMoveComponent.h"
 #include "ColliderComponent.h"
+#include "FloorMoveComponent.h"

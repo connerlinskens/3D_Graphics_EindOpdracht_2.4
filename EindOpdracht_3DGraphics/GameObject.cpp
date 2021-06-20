@@ -26,6 +26,25 @@ std::list<Component*> GameObject::getComponents()
 	return components;
 }
 
+void GameObject::addChild(GameObject* child)
+{
+	for (auto& c : children)
+		if (c == child)
+			return;
+
+	children.push_back(child);
+}
+
+void GameObject::removeChild(GameObject* child)
+{
+	children.remove(child);
+}
+
+std::list<GameObject*> GameObject::getChildren()
+{
+	return children;
+}
+
 void GameObject::update(float deltaTime)
 {
 	for (auto& c : components)

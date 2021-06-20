@@ -86,6 +86,11 @@ void init()
             player->getComponent<PlayerMoveComponent>()->onGround = true;
             player->getComponent<PlayerMoveComponent>()->yVelocity = 0;
         }
+        else if (collider->tag == "moving_floor") {
+            player->getComponent<PlayerMoveComponent>()->onGround = true;
+            player->getComponent<PlayerMoveComponent>()->yVelocity = 0;
+            collider->getGameObject()->addChild(player);
+        }
         std::cout << "Colliding with " << collider->tag << std::endl;
     };
     gameObjects.push_back(player);
@@ -101,10 +106,18 @@ void init()
     }
 
     GameObject* floor = new GameObject();
-    floor->position = glm::vec3(0, -5, 0);
+    floor->position = glm::vec3(0, -5, 5);
     floor->addComponent(new CubeComponent(glm::vec3(5, 0.5f, 5), glm::vec4(0.5f, 0.5f, 0.5f, 1)));
     floor->addComponent(new ColliderComponent(collisionManager, glm::vec3(5, 0.5f, 5), "floor"));
     gameObjects.push_back(floor);
+
+    GameObject* moveFloor = new GameObject();
+    moveFloor->position = glm::vec3(-5, -5, -2);
+    moveFloor->addComponent(new CubeComponent(glm::vec3(1, 0.5f, 1), glm::vec4(0.5f, 0.5f, 0.5f, 1)));
+    moveFloor->addComponent(new ColliderComponent(collisionManager, glm::vec3(1, 0.5f, 1), "moving_floor"));
+    std::vector<glm::vec3> targets = { moveFloor->position, glm::vec3(5, -5, -2) };
+    moveFloor->addComponent(new FloorMoveComponent(targets));
+    gameObjects.push_back(moveFloor);
 }
 
 
@@ -115,7 +128,11 @@ void update()
     lastFrameTime = currentFrameTime;
 
     //camera->update(window);
-    collisionManager->isColliding(player->getComponent<ColliderComponent>());
+    for (auto& go : gameObjects) 
+        if (go->getComponent<ColliderComponent>())
+            collisionManager->isColliding(go->getComponent<ColliderComponent>());
+    
+    //collisionManager->isColliding(player->getComponent<ColliderComponent>());
 
     for (auto& go : gameObjects)
         go->update(deltaTime);
