@@ -7,3 +7,4 @@
 #include "PlayerMoveComponent.h"
 #include "ColliderComponent.h"
 #include "FloorMoveComponent.h"
+#include "ModelComponent.h"

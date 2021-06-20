@@ -75,7 +75,7 @@ void init()
     collisionManager = new CollisionManager();
 
     player = new GameObject();
-    player->position = glm::vec3(0, 0, 5);
+    player->position = glm::vec3(0, 5, 5);
     player->scale = glm::vec3(0.5f);
     player->addComponent(new CameraComponent(window));
     player->addComponent(new PlayerMoveComponent(window));
@@ -118,6 +118,12 @@ void init()
     std::vector<glm::vec3> targets = { moveFloor->position, glm::vec3(5, -5, -2) };
     moveFloor->addComponent(new FloorMoveComponent(targets));
     gameObjects.push_back(moveFloor);
+
+    GameObject* enemy = new GameObject();
+    enemy->position = glm::vec3(2, 0, 2);
+    enemy->addComponent(new ModelComponent(new ObjModel("resources/pawn/pawn.obj")));
+    enemy->addComponent(new ColliderComponent(collisionManager, glm::vec3(0.2f, 1, 0.2f), "enemy"));
+    gameObjects.push_back(enemy);
 }
 
 

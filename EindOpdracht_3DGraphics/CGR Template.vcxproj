@@ -167,6 +167,7 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GeometryComponent.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ModelComponent.cpp" />
     <ClCompile Include="PlayerMoveComponent.cpp" />
     <ClCompile Include="ObjModel.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="FloorMoveComponent.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GeometryComponent.h" />
+    <ClInclude Include="ModelComponent.h" />
     <ClInclude Include="PlayerMoveComponent.h" />
     <ClInclude Include="ObjModel.h" />
     <ClInclude Include="stb_image.h" />
